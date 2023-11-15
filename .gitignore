@@ -1,0 +1,42 @@
+# ignore bin and obj folders
+bin/
+obj/
+
+# ignore user-specific files
+*.user
+*.suo
+*.sln.docstates
+
+# ignore .NET Core build files
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*.swp
+
+# ignore Visual Studio files
+.vs/
+*.csproj.user
+*.psess
+*.vsp
+*.vspx
+*.vssscc
+*.vssettings
+*.vstemplate
+*.vsz
+*.DS_Store
+
+# ignore NuGet packages
+*.nupkg
+packages/
+*.nuget.props
+*.nuget.targets
+
+# ignore build output
+_build/
+dist/
+out/
+
+crm.db
+DB/
+crm.db-shm
+crm.db-wal
