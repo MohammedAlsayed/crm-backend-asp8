@@ -1,7 +1,9 @@
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using CRM.Data;
 using CRM.Services;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,23 +19,45 @@ builder.Services.AddScoped<UserService>();
 // Add CORS policy
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
+    options.AddDefaultPolicy(builder =>
     {
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
+        builder.WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
-builder.Services.AddAuthentication().AddJwtBearer();
-builder.Services.AddAuthorization();
+//Jwt configuration starts here
+var jwtIssuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();
+var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
+// Add JWT Authentication & Authorization
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+ .AddJwtBearer(options =>
+ {
+     options.TokenValidationParameters = new TokenValidationParameters
+     {
+         ValidateIssuer = true,
+         ValidateAudience = true,
+         ValidateLifetime = false,
+         ValidateIssuerSigningKey = true,
+         ValidIssuer = jwtIssuer,
+         ValidAudience = jwtIssuer,
+         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+     };
+ });
+ builder.Services.AddAuthorization();
 
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
 var app = builder.Build();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.CreateDbIfNotExists();
 
@@ -47,7 +71,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // add CORS policy
-app.UseCors("AllowAll");
+app.UseCors();
 
 app.MapControllers();
 

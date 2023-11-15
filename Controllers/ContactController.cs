@@ -1,9 +1,11 @@
 using CRM.Models;
 using CRM.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CRM.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class ContactController : ControllerBase
