@@ -55,13 +55,15 @@ public class AuthenticationController: ControllerBase
         };
 
         var result = await _userManager.CreateAsync(newUser, model.Password);
-        // print errors
-        foreach (var error in result.Errors)
-            Console.WriteLine(error);
 
         if (!result.Succeeded)
             return BadRequest($"User {model.Email} creation failed!");
 
+        // Add User Role
+        if (await _roleManager.RoleExistsAsync(model.Role)){
+            await _userManager.AddToRoleAsync(newUser, model.Role);
+        }
+        
         return Ok("User created successfully!");
     }
 
@@ -99,20 +101,12 @@ public class AuthenticationController: ControllerBase
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
-        // var userRoles = await _userManager.GetRolesAsync(user);
-        // foreach (var userRole in userRoles)
-        // {
-        //     authClaims.Add(new Claim(ClaimTypes.Role, userRole));
-        //     var role = await _roleManager.FindByNameAsync(userRole);
-        //     if (role != null)
-        //     {
-        //         var roleClaims = await _roleManager.GetClaimsAsync(role);
-        //         foreach (Claim roleClaim in roleClaims)
-        //         {
-        //             authClaims.Add(roleClaim);
-        //         }
-        //     }
-        // }
+
+        var userRoles = await _userManager.GetRolesAsync(user);
+        foreach (var userRole in userRoles)
+        {
+            authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+        }
 
         var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
 

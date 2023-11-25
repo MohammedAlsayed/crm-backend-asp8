@@ -1,4 +1,6 @@
+using CRM.Helpers;
 using CRM.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace CRM.Data;
 public static class DbInitializer
@@ -150,5 +152,19 @@ public static class DbInitializer
 
     private static void PopulateUsers(string filePath, DbAppContext context){
         
+    }
+
+    public static async Task SeedRoles(IApplicationBuilder applicationBuilder){
+        using(var serviceScope = applicationBuilder.ApplicationServices.CreateScope())
+        {
+            var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            if (!await roleManager.RoleExistsAsync(UserRoles.Manager))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.Manager));
+            if (!await roleManager.RoleExistsAsync(UserRoles.User))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
+            
+
+        }
+
     }
 }

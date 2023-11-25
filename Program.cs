@@ -87,6 +87,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.CreateDbIfNotExists();
+DbInitializer.SeedRoles(app).Wait();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

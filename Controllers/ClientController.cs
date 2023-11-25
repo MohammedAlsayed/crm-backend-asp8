@@ -1,3 +1,4 @@
+using CRM.Helpers;
 using CRM.Models;
 using CRM.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -7,7 +8,7 @@ namespace CRM.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[Authorize(Roles = UserRoles.Manager)]
 public class ClientController : ControllerBase
 {
     ClientService _service;
