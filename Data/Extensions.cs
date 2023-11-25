@@ -8,7 +8,7 @@ public static class Extensions
             using (var scope = host.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
-                var context = services.GetRequiredService<CrmContext>();
+                var context = services.GetRequiredService<DbAppContext>();
                 context.Database.EnsureCreated();
                 DbInitializer.Initialize(context);
             }

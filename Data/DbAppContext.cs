@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using CRM.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace CRM.Data;
-public class CrmContext : DbContext
+public class DbAppContext : IdentityDbContext<User>
 {
-    public CrmContext (DbContextOptions<CrmContext> options): base(options)
+    public DbAppContext (DbContextOptions<DbAppContext> options): base(options)
     {
     }
 

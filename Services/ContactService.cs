@@ -6,8 +6,8 @@ namespace CRM.Services;
 
 public class ContactService
 {
-    private readonly CrmContext _context;
-    public ContactService(CrmContext context)
+    private readonly DbAppContext _context;
+    public ContactService(DbAppContext context)
     {
         _context = context;
     }

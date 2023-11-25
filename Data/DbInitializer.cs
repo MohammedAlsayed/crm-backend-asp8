@@ -3,7 +3,7 @@ using CRM.Models;
 namespace CRM.Data;
 public static class DbInitializer
 {
-    public static void Initialize(CrmContext context)
+    public static void Initialize(DbAppContext context)
     {
 
         if (!context.Clients.Any())
@@ -17,7 +17,7 @@ public static class DbInitializer
         return;
         
     }
-    private static void PopulateClients(string filePath, CrmContext context)
+    private static void PopulateClients(string filePath, DbAppContext context)
     {
         try
         {
@@ -59,7 +59,7 @@ public static class DbInitializer
         }
     }
 
-    private static void PopulateContacts(string folderPath, CrmContext context){
+    private static void PopulateContacts(string folderPath, DbAppContext context){
         // read file names in directory and populate contacts table with each file name as fk to client id 
         // and the file content as the contact name
         // skip the first line
@@ -101,7 +101,7 @@ public static class DbInitializer
         }
     }
 
-    private static void PopulateContacts1(string filePath, CrmContext context){
+    private static void PopulateContacts1(string filePath, DbAppContext context){
         try
         {
             using (StreamReader reader = new StreamReader(filePath))
@@ -148,7 +148,7 @@ public static class DbInitializer
         }
     }
 
-    private static void PopulateUsers(string filePath, CrmContext context){
+    private static void PopulateUsers(string filePath, DbAppContext context){
         
     }
 }

@@ -6,6 +6,7 @@ obj/
 *.user
 *.suo
 *.sln.docstates
+.vscode/
 
 # ignore .NET Core build files
 project.lock.json

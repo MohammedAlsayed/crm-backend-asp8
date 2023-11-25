@@ -1,8 +1,6 @@
 using CRM.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
+using CRM.Auth;
 
 namespace CRM.Controllers;
 
@@ -16,27 +14,30 @@ public class LoginController : ControllerBase
         _config = config;
     }
 
-    [HttpPost]
-    public IActionResult Login(User userLogin)
+    // [HttpPost]
+    // public IActionResult Login(User user)
+    // {
+    //     //your logic for login process
+    //     //If login usrename and password are correct then proceed to generate token
+    //     if (user.EnName != "khadeja" || user.Password != "123")
+    //     {
+    //         return Unauthorized();
+    //     }
+
+    //     var token = Jwt.Generate(user, _config);
+        
+    //     return Ok(token);
+    // }
+
+    [HttpPost("authenticate/{token}")]
+    public IActionResult Authenticate(string token)
     {
-        //your logic for login process
-        //If login usrename and password are correct then proceed to generate token
-        if (userLogin.EnName != "khadeja" || userLogin.Password != "123")
+        var userId = Jwt.ValidateToken(token, _config);
+        if (userId == null)
         {
             return Unauthorized();
         }
 
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-        var Sectoken = new JwtSecurityToken(_config["Jwt:Issuer"],
-            _config["Jwt:Issuer"],
-            null,
-            expires: DateTime.Now.AddDays(30),
-            signingCredentials: credentials);
-
-        var token =  new JwtSecurityTokenHandler().WriteToken(Sectoken);
-
-        return Ok(token);
+        return Ok(userId);
     }
 }

@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CRM.Controllers;
 
-[Authorize]
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class ClientController : ControllerBase
 {
     ClientService _service;

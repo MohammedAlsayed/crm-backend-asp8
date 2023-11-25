@@ -22,6 +22,6 @@ This is backend is built with dotnet 6.0.416 SDK.
 # Helpful commands
 
 - To remove migrations `dotnet ef migrations remove`
-- create migrations `dotnet ef migrations add InitialCreate --context CrmContext`
-- add modifications `dotnet ef migrations add ModelRevisions --context CrmContext`
-- update database `dotnet ef database update --context CrmContext`
+- create migrations `dotnet ef migrations add InitialCreate --context DbAppContext`
+- add modifications `dotnet ef migrations add ModelRevisions --context DbAppContext`
+- update database `dotnet ef database update --context DbAppContext`

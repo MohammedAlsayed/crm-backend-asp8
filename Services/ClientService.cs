@@ -8,8 +8,8 @@ namespace CRM.Services;
 
 public class ClientService
 {
-    private readonly CrmContext _context;
-    public ClientService(CrmContext context)
+    private readonly DbAppContext _context;
+    public ClientService(DbAppContext context)
     {
         _context = context;
     }
