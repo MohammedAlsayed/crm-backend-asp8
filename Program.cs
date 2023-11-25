@@ -14,6 +14,29 @@ var DbConnectionString = builder.Configuration.GetConnectionString("DefaultConne
 builder.Services.AddDbContext<DbAppContext>(options =>
     options.UseSqlite(DbConnectionString));
 
+
+//Jwt configuration starts here
+var jwtIssuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();
+var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
+
+
+var TokenValidationParameters = new TokenValidationParameters
+     {
+         ValidateIssuerSigningKey = true,
+         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+
+         ValidateIssuer = true,
+         ValidIssuer = jwtIssuer,
+
+         ValidateAudience = true,
+         ValidAudience = jwtIssuer,
+
+         ValidateLifetime = true,
+         ClockSkew = TimeSpan.Zero
+     };
+
+builder.Services.AddSingleton<TokenValidationParameters>(TokenValidationParameters);
+
 // Add Identity
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<DbAppContext>()
@@ -23,10 +46,6 @@ builder.Services.AddIdentity<User, IdentityRole>()
 builder.Services.AddScoped<ClientService>();
 builder.Services.AddScoped<ContactService>();
 builder.Services.AddScoped<UserService>();
-
-//Jwt configuration starts here
-var jwtIssuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();
-var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
 
 // Add JWT Authentication
 builder.Services.AddAuthentication(options =>
@@ -39,19 +58,7 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(options =>{
     options.SaveToken = true;
     options.RequireHttpsMetadata = false;
-    options.TokenValidationParameters = new TokenValidationParameters
-     {
-         ValidateIssuerSigningKey = true,
-         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-
-         ValidateIssuer = true,
-         ValidIssuer = jwtIssuer,
-
-         ValidateAudience = true,
-         ValidAudience = jwtIssuer,
-
-         ValidateLifetime = false,
-     };
+    options.TokenValidationParameters = TokenValidationParameters;
  });
 
 // Add CORS policy

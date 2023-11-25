@@ -13,4 +13,6 @@ public class DbAppContext : IdentityDbContext<User>
     public DbSet<User> Users => Set<User>();
     public DbSet<Contact> Contacts => Set<Contact>();
 
+    public DbSet<RefreshTokens> RefreshTokens { get; set; }
+
 }
