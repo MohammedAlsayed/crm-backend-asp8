@@ -14,7 +14,7 @@ namespace CRM.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthenticationController: ControllerBase
+public class AuthController: ControllerBase
 {
     private readonly UserManager<User> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
@@ -22,7 +22,7 @@ public class AuthenticationController: ControllerBase
     private readonly IConfiguration _configuration;
     private readonly TokenValidationParameters _tokenValidationParameters;
 
-    public AuthenticationController(UserManager<User> userManager, 
+    public AuthController(UserManager<User> userManager, 
     RoleManager<IdentityRole> roleManager, 
     DbAppContext context, 
     IConfiguration configuration, 
@@ -82,14 +82,31 @@ public class AuthenticationController: ControllerBase
         return Unauthorized();
     }
 
-    [HttpPost("refresh-token")]
+    [HttpPost("refresh_token")]
     public async Task<IActionResult> RefreshToken([FromBody] TokenRequestVM model){
         if (!ModelState.IsValid)
             return BadRequest("Please, provide all the required fields.");
 
-        var result = await VerifyAndGenerateToken(model);
+        try{
+            var result = await VerifyAndGenerateToken(model);
+            return Ok(result);
+        }
+        catch(Exception ex){
+            return Unauthorized(ex.Message);
+        }
+    }
 
-        return Ok(result);
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout([FromBody] LogoutVM model){
+        Console.WriteLine("LOGOUT CALLED");
+        if (!ModelState.IsValid) return BadRequest("Please, provide all the required fields.");
+
+        // var rToken = await _context.RefreshTokens.FirstOrDefaultAsync(x => x.Token == model.RefreshToken);
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == model.userId);
+        _context.RefreshTokens.Where(x => x.UserId == model.userId).ToList().ForEach(x => _context.RefreshTokens.Remove(x));
+        await _context.SaveChangesAsync();
+
+        return Ok("Logout successful");
     }
 
     private async Task<AuthResultVM> GenerateJWTToken(User user, RefreshTokens rToken){
@@ -113,7 +130,7 @@ public class AuthenticationController: ControllerBase
         var token = new JwtSecurityToken(
             issuer: _configuration["Jwt:Issuer"],
             audience: _configuration["Jwt:Issuer"],
-            expires: DateTime.Now.AddHours(3),
+            expires: DateTime.Now.AddMinutes(10),
             claims: authClaims,
             signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
         ); 
@@ -123,7 +140,8 @@ public class AuthenticationController: ControllerBase
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
                 RefreshToken = rToken.Token,
-                ExpiresAt = token.ValidTo
+                ExpiresAt = token.ValidTo,
+                UserId = user.Id
             };
             return rTokenResponse;
         }
@@ -134,7 +152,6 @@ public class AuthenticationController: ControllerBase
             UserId = user.Id,
             CreatedAt = DateTime.UtcNow,
             ExpiresAt = DateTime.UtcNow.AddMonths(6),
-            IsRevoked = false,
             Token = Guid.NewGuid().ToString() + "-" + Guid.NewGuid().ToString()
         };
         
@@ -145,7 +162,8 @@ public class AuthenticationController: ControllerBase
         {
             Token = new JwtSecurityTokenHandler().WriteToken(token),
             RefreshToken = refreshToken.Token,
-            ExpiresAt = token.ValidTo
+            ExpiresAt = token.ValidTo,
+            UserId = user.Id
         };
     }
 
@@ -155,6 +173,10 @@ public class AuthenticationController: ControllerBase
 
         var storedToken = await _context.RefreshTokens.FirstOrDefaultAsync(x => x.Token == model.RefreshToken);
 
+        if (storedToken == null){
+            throw new SecurityTokenException("Invalid refresh token");
+        }
+    
         var dbUser = await _userManager.FindByIdAsync(storedToken.UserId);
 
         try{

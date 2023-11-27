@@ -11,8 +11,7 @@ public class RefreshTokens
     public string JwtId { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime ExpiresAt { get; set; }
-    public bool IsRevoked { get; set; }
-    public string UserId { get; set; }
+    public string? UserId { get; set; }
     [ForeignKey(nameof(UserId))]
     public User User { get; set; }
     

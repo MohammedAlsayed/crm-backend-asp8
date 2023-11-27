@@ -1,12 +1,9 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace CRM.ViewModels
 {
-    public class TokenRequestVM
+    public class LogoutVM
     {
-        [Required]
         public string Token { get; set; }
-        [Required]
         public string RefreshToken { get; set; }
+        public string userId { get; set; }
     }
 }
